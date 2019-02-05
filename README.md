@@ -14,4 +14,4 @@ The OCLMemoryVariable should be used for OpenCL Images. The method SetHostPointe
 # OCL ressource compiler
 With this library comes a ressource compiler which can compile OpenCL files (.cl) into the binary in order to guarantee code consistency.
 It is also possible to use include files (.clh) via simple text replacement by using &#35;include, like you include normal C/C++ headers.
-To load .cl file simply use the loadOCLKernel or loadOCLKernelWithConstants Makro. It switches it's behaviour depending on the cmake option USE_COMPILETIMERESSOURCES.
+To load .cl file simply use the loadOCLKernel or loadOCLKernelWithConstants Makro. It switches it's behaviour depending on the cmake option "USE_COMPILETIMERESSOURCES".
