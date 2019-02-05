@@ -1,0 +1,71 @@
+cmake_minimum_required (VERSION 3.9)
+PROJECT(OCL_DAMA C CXX)
+file(GLOB_RECURSE OCL_SOURCES FILES_MATCHING PATTERN "src/*.cpp")
+file(GLOB_RECURSE OCL_CL_SOURCES FILES_MATCHING PATTERN "src/opencl/*.cl")
+file(GLOB_RECURSE OCL_CL_HEADER FILES_MATCHING PATTERN "src/opencl/*.clh")
+file(GLOB_RECURSE OCL_HEADERS FILES_MATCHING PATTERN "include/*.h")
+
+option(USE_CompiletimeRessources "use OpenCL files or compile the files into the binary" OFF)
+option(USE_OpenGL "use OpenGL to accelerate the integration" OFF)
+
+find_package( OpenCV REQUIRED )
+find_package( OpenCL REQUIRED )
+
+list(APPEND OCL_LIBS_DIR ${OpenCV_LIBS})
+list(APPEND OCL_LIBS_DIR ${OpenCL_LIBRARIES})
+list(APPEND OCL_INC_DIR ${OpenCL_INCLUDE_DIRS})
+list(APPEND OCL_INC_DIR ${OpenCV_INCLUDE_DIRS})
+
+if(NOT UNIX)
+   add_compile_definitions(WIN32)
+endif()
+add_compile_definitions(__USE_OPENCL__)
+
+if(${USE_OpenGL} MATCHES ON)
+	find_package( OpenGL REQUIRED )
+	list(APPEND OCL_LIBS_DIR ${OPENGL_LIBRARIES})
+	list(APPEND OCL_INC_DIR ${OPENGL_INCLUDE_DIR})
+	add_compile_definitions(__USE_OPENGL__)
+endif()
+
+if(UNIX)
+  set (CMAKE_CXX_FLAGS "-std=c++17") 
+  set (CMAKE_C_FLAGS "-std=c17")
+  SET(CMAKE_CXX_FLAGS "-std:c++17" PARENT_SCOPE)
+  SET(CMAKE_C_FLAGS "-std:c17" PARENT_SCOPE)
+else()
+  set (CMAKE_CXX_FLAGS "/std:c++17 /EHsc /MP") 
+  set (CMAKE_C_FLAGS "/std:c17 /EHsc /MP")
+  SET(CMAKE_CXX_FLAGS "/std:c++17 /EHsc /MP" PARENT_SCOPE)
+  SET(CMAKE_C_FLAGS "/std:c17 /EHsc /MP" PARENT_SCOPE)
+
+  #set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+  #set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+  #set(CMAKE_CXX_FLAGS_RELEASE "/MT" PARENT_SCOPE)
+  #set(CMAKE_CXX_FLAGS_DEBUG "/MTd" PARENT_SCOPE)
+endif()
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY lib)
+
+link_directories(${OCL_LIBS_DIR})
+
+add_library(oclDAMA ${OCL_SOURCES} ${OCL_HEADERS} ${OCL_CL_SOURCES} ${OCL_INC_DIR})
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+source_group("opencl" FILES ${OCL_CL_SOURCES})
+source_group("include" FILES ${OCL_HEADERS})
+source_group("src" FILES ${OCL_SOURCES})
+source_group("opencl" REGULAR_EXPRESSION "[\\w*\\.cl]+")
+source_group("opencl/include" FILES ${OCL_CL_HEADER})
+source_group("opencl/include" REGULAR_EXPRESSION "[\\w*\\.clh]+")
+
+target_link_libraries(oclDAMA ${OCL_LIBS_DIR})
+
+if(${USE_CompiletimeRessources} MATCHES ON)
+	message(STATUS "Building OpenCL RC..")
+    add_compile_definitions(__USE_COMPILETIMERESSOURCES__)
+	execute_process(COMMAND "cmake" "." WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/OCL_RC")
+	execute_process(COMMAND "cmake" "--build" "." WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/OCL_RC")
+endif()
+
+target_include_directories(oclDAMA PUBLIC includes ${OCL_INC_DIR})
