@@ -1,4 +1,4 @@
-# OpenCL_DaMa_Library
+# OpenCL DaMa Library
 Simple data management library for OpenCL
 
 This libray contains some simple classes for easy working with OpenCL.
