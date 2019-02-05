@@ -10,3 +10,7 @@ Every host data type can be wrapped by a OCLVariable class in order to work with
 Besides normal data download and upload, the OCLRingBuffer offers to sychronize host data from a ring buffer to OpenCL memory.
 
 The OCLMemoryVariable should be used for OpenCL Images. The method SetHostPointer() enables assigning other objects like cv::Mat classes to the OCLVariable. It can be used to load content to OpenCL or save it.
+
+#OCL ressource compiler
+With this library comes a ressource compiler which can compile OpenCL file (.cl) into the binary in order to guarantee code consistency.
+It is also possible to use include files (.clh) via simple text replacement by using &#35;include, like you include normal C/C++ headers.
