@@ -66,6 +66,7 @@ if(${USE_CompiletimeRessources} MATCHES ON)
     add_compile_definitions(__USE_COMPILETIMERESSOURCES__)
 	execute_process(COMMAND "cmake" "." WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/OCL_RC")
 	execute_process(COMMAND "cmake" "--build" "." WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/OCL_RC")
+  add_custom_command(TARGET oclDAMA PRE_BUILD COMMAND "${PROJECT_SOURCE_DIR}/OCL_RC/Debug/OCL_RC.exe" "${PROJECT_SOURCE_DIR}/src/opencl" "${PROJECT_SOURCE_DIR}/includes")
 endif()
 
 target_include_directories(oclDAMA PUBLIC includes ${OCL_INC_DIR})
