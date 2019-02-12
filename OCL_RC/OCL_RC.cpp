@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <regex>
 #include <sstream>
+#include <sys/stat.h>
 
 namespace fs = std::filesystem;
 
@@ -25,12 +26,28 @@ int main(int argc, char *argv[])
 	if (argc == 0)
 	{
 		std::cout << "No params found\n";
-		return -1;
+		return 0;
+	}
+
+	struct stat info;
+
+	if(stat(argv[argc - 1], &info) != 0 || !(info.st_mode & S_IFDIR))
+	{
+		std::cout << "Include dir not valid:\"" << argv[argc - 1] << "\"\n";
+		return 0;
 	}
 
 	std::fstream file;
 	file.open(std::string(argv[argc - 1]) + "/OCLRes.h", std::fstream::out);
 	file << "#pragma once\n";
+
+	if(argc > 1 && (stat(argv[argc - 2], &info) != 0 || !(info.st_mode & S_IFDIR)))
+	{
+		std::cout << "OCL Source dir not valid:\"" << argv[argc - 2] << "\"\n";
+		file.close();
+		return 0;
+	}
+
 	file << "#include <string>\n";
 	std::string basePath = std::string(argv[argc - 2])+"/";
 
@@ -73,7 +90,7 @@ int main(int argc, char *argv[])
 						if (!fileExists(path))
 						{
 							std::printf(" ERROR: Could not find cl include file: %s!\n", path.c_str());
-							exit(-1);
+							exit(0);
 						}
 					}
 
