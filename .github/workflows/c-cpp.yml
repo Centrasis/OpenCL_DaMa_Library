@@ -21,6 +21,7 @@ jobs:
           install-deps: true
           CMAKE_BUILD_TYPE: RELEASE
           WITH_OPENGL: true
+          BUILD_NEW_PYTHON_SUPPORT: false
       - name: configure
         run: cmake .
       - name: make
