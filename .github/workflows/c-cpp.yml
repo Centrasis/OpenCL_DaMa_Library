@@ -12,12 +12,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: configure
-      run: cmake .
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - name: Setup OpenCV
+      - uses: Dovyski/setup-opencv-action@v1
+      - with:
+          opencv-version: 4.0.0
+          opencv-extra-modules: true
+          install-deps: true
+          CMAKE_BUILD_TYPE: RELEASE
+          WITH_OPENGL: true
+      - uses: actions/checkout@v2
+      - name: configure
+        run: cmake .
+      - name: make
+        run: make
+      - name: make check
+        run: make check
+      - name: make distcheck
+        run: make distcheck
