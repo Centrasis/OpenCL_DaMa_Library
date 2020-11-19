@@ -147,43 +147,6 @@ public:
 		return CL_SUCCESS;
 	}
 
-	/*variable needs to be acquired on a relative synchronized call 
-	inline void acquireHostVariable()
-	{
-		ACQUIRE_MUTEX(HOST_LOCK);
-		refCount++;
-		RELEASE_MUTEX(HOST_LOCK);
-	}*/
-
-	/** releases Variable form Host. if this OCLVariable is no longer referenced by any other instance it will be deleted 
-	inline void releaseHostVariable()
-	{
-		ACQUIRE_MUTEX(HOST_LOCK);
-		if(refCount != 0)
-			refCount--;
-
-		if (refCount == 0)
-		{
-			RELEASE_MUTEX(HOST_LOCK);
-			delete this;
-			return;
-		}
-		RELEASE_MUTEX(HOST_LOCK);
-	}*/
-
-	/* allows variable to be freed if refCount is zero 
-	inline void Free()
-	{
-		ACQUIRE_MUTEX(HOST_LOCK);
-		if (refCount == 0)
-		{
-			RELEASE_MUTEX(HOST_LOCK);
-			delete this;
-			return;
-		}
-		RELEASE_MUTEX(HOST_LOCK);
-	}*/
-
 	inline void acquireCLMemory()
 	{
 		if (getCLMemoryObject(NULL) != NULL)
@@ -277,9 +240,8 @@ public:
 	virtual EOCLBufferType getBufferType() override { return EOCLBufferType::BTNative; };
 	operator OCLVariable*() const { return (OCLVariable*)this; };
 	virtual T& operator[](size_t i) { return value[i]; };
-
-
-	using _Mybase = std::_Vector_alloc<std::_Vec_base_types<T, std::allocator<T>>>;
+	
+	using _Mybase = std::vector<T>;
 	using iterator = typename _Mybase::iterator;
 
 	_NODISCARD iterator begin() noexcept
