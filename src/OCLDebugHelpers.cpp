@@ -29,7 +29,7 @@ void OCLDebugHelpers::saveImgToFile(cv::Mat & img)
 		case 4: cv::cvtColor(img, colored, cv::COLOR_BGRA2BGR);
 	}
 	std::vector<int> compression_params;
-	compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+	compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
 	compression_params.push_back(9);
 	if (!cv::imwrite("dbgOut_" + std::to_string(instance->debugOutCount++) + ".png", colored, compression_params))
 		std::printf("could not store cv::Mat!");
