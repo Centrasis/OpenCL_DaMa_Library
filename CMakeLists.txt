@@ -10,7 +10,7 @@ get_directory_property(hasParent PARENT_DIRECTORY)
 option(USE_CompiletimeRessources "use OpenCL files or compile the files into the binary" OFF)
 option(USE_OpenGL "use OpenGL to accelerate the integration" OFF)
 
-find_package( OpenCV REQUIRED )
+find_package( OpenCV REQUIRED PATHS "C:/OpenCV" "C:/Program Files (x86)/OpenCV" )
 find_package( OpenCL REQUIRED )
 
 list(APPEND OCL_LIBS_DIR ${OpenCV_LIBS})
