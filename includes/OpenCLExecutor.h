@@ -41,10 +41,10 @@ public:
 	/** Gets the OpenCLExecutor only! Implement other Executors in higher classes */
 	static OpenCLExecutor& getExecutor();
 	virtual void DeinitPlatform(); 
-	virtual bool RunKernel(FOCLKernel& kernel, bool shouldBlockVariables = true, const cl::vector<cl::Event>* events = NULL, cl::Event* event = NULL);
+	virtual bool RunKernel(FOCLKernel& kernel, bool shouldBlockVariables = true, const VECTOR_CLASS<cl::Event>* events = NULL, cl::Event* event = NULL);
 	virtual void appendKernelToQueueOf(FOCLKernel& parent, FOCLKernel& child);
 	virtual bool InitKernel(FOCLKernel& kernel);
-	virtual bool RunInitializedKernel(FOCLKernel& kernel, bool shouldBlockVariables = true, const cl::vector<cl::Event>* events = NULL, cl::Event* event = NULL);
+	virtual bool RunInitializedKernel(FOCLKernel& kernel, bool shouldBlockVariables = true, const VECTOR_CLASS<cl::Event>* events = NULL, cl::Event* event = NULL);
 	virtual void createWorkgroup(FOCLKernel& kernel);
 	virtual void StopKernel(FOCLKernel& kernel);
 	virtual bool WaitForKernel(FOCLKernel& kernel);

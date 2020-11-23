@@ -14,7 +14,7 @@ find_package( OpenCV REQUIRED PATHS "C:/OpenCV" "C:/Program Files (x86)/OpenCV" 
 find_package( OpenCL REQUIRED )
 
 list(APPEND OCL_LIBS_DIR ${OpenCV_LIBS})
-list(APPEND OCL_LIBS_DIR ${OpenCL_LIBRARIES})
+list(APPEND OCL_LIBS_DIR ${OpenCL_LIBRARY})
 list(APPEND OCL_INC_DIR ${OpenCL_INCLUDE_DIRS})
 list(APPEND OCL_INC_DIR ${OpenCV_INCLUDE_DIRS})
 

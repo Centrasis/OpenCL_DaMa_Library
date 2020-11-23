@@ -4,7 +4,7 @@
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #include <vector>
 #include <string>
-#include <CL/cl2.hpp>
+#include <CL/cl.hpp>
 
 #ifndef __USE_COMPILETIMERESSOURCES__
 #include <filesystem>
@@ -611,9 +611,12 @@ public:
 
 		if (getBufferType() == BTCLImage && getHostPointer() != NULL)
 		{
-			const cl::array<cl::size_type, 3> origin = { 0,0,0 };
+			const cl::size_t<3> origin;
 			cl::Image* img = (cl::Image*)getValue();
-			const cl::array<cl::size_type, 3> size = { img->getImageInfo<CL_IMAGE_WIDTH>(), img->getImageInfo<CL_IMAGE_HEIGHT>(), 1 };
+			cl::size_t<3> size;
+			size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
+			size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
+			size[2] = 1;
 			return queue->enqueueWriteImage(*img, (getIsBlocking()) ? CL_TRUE : CL_FALSE, origin, size, 0, 0, getHostPointer(), NULL, NULL);
 		}
 
@@ -630,9 +633,12 @@ public:
 
 		if (getBufferType() == BTCLImage && hostPtr != NULL)
 		{
-			const cl::array<cl::size_type, 3> origin = { 0,0,0 };
+			const cl::size_t<3> origin;
 			cl::Image* img = (cl::Image*)getValue();
-			const cl::array<cl::size_type, 3> size = { img->getImageInfo<CL_IMAGE_WIDTH>(), img->getImageInfo<CL_IMAGE_HEIGHT>(), 1 };
+			cl::size_t<3> size;
+			size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
+			size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
+			size[2] = 1;
 			return queue->enqueueReadImage(*img, getIsBlocking() ? CL_TRUE : CL_FALSE, origin, size, 0, 0, hostPtr, 0, 0);
 		}
 
@@ -640,18 +646,28 @@ public:
 		return -1;
 	}
 
-
-	/** possible data type for init image is cl_uint4 */
 	virtual cl_int initWithValue(cl::CommandQueue* queue, void* data, size_t size) override
+	{
+		return this->initWithValue<cl_uint4>(queue, (cl_uint4*)data, size);
+	}
+
+
+protected:
+	/** possible data type for init image is cl_uint4 */
+	template<typename T>
+	cl_int initWithValue(cl::CommandQueue* queue, T* data, size_t size)
 	{
 		switch (getBufferType())
 		{
 			case BTCLImage:
 			{
-				const cl::array<cl::size_type, 3> origin = { 0,0,0 };
+				const cl::size_t<3> origin;
 				cl::Image* img = (cl::Image*)getValue();
-				const cl::array<cl::size_type, 3> size = { img->getImageInfo<CL_IMAGE_WIDTH>(), img->getImageInfo<CL_IMAGE_HEIGHT>(), 1 };
-				return queue->enqueueFillImage(*img, *(cl_uint4*)data, origin, size);
+				cl::size_t<3> size;
+				size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
+				size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
+				size[2] = 1;
+				return queue->enqueueFillImage(*img, *data, origin, size);
 			}
 		};
 
@@ -1007,7 +1023,7 @@ typedef struct FOCLKernelGroup
 	/** WaitforGroup is needed to free all variables acquired by this call 
 	    @param pkernel modified kernel for update of var
 	*/
-	void Run(const cl::vector<cl::Event>* events = NULL, cl::Event* event = NULL, FOCLKernel* pkernel = NULL)
+	void Run(const VECTOR_CLASS<cl::Event>* events = NULL, cl::Event* event = NULL, FOCLKernel* pkernel = NULL)
 	{
 		if (pkernel == NULL)
 			pkernel = kernel;

@@ -203,7 +203,7 @@ bool OpenCLExecutor::runsKernel(FOCLKernel& kernel)
 	return false;
 }
 
-bool OpenCLExecutor::RunKernel(FOCLKernel & kernel, bool shouldBlockVariables, const cl::vector<cl::Event>* events, cl::Event* event)
+bool OpenCLExecutor::RunKernel(FOCLKernel & kernel, bool shouldBlockVariables, const VECTOR_CLASS<cl::Event>* events, cl::Event* event)
 {
 	if (deviceInfos.maxWorkGroupDimensions < kernel.localThreadCount.dimensions())
 	{
@@ -295,7 +295,7 @@ bool OpenCLExecutor::InitKernel(FOCLKernel & kernel)
 	return true;
 }
 
-bool OpenCLExecutor::RunInitializedKernel(FOCLKernel & kernel, bool shouldBlockVariables, const cl::vector<cl::Event>* events, cl::Event* event)
+bool OpenCLExecutor::RunInitializedKernel(FOCLKernel & kernel, bool shouldBlockVariables, const VECTOR_CLASS<cl::Event>* events, cl::Event* event)
 {
 	ACQUIRE_MUTEX(CL_LOCK);
 	FOCLKernelGroup* g = getWorkingGroupOfKernel(kernel);

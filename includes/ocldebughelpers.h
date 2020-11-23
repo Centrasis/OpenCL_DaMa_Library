@@ -1,7 +1,7 @@
-#include "OpenCLTypes.h"
-#include "OpenCLExecutor.h"
+#pragma once
 #include <opencv2/opencv.hpp>
 #include "MultiplattformTypes.h"
+#include "OpenCLExecutor.h"
 
 class OCLDebugHelpers
 {
