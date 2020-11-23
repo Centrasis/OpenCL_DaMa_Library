@@ -646,6 +646,7 @@ public:
 		return -1;
 	}
 
+	/** possible data type for init image is cl_uint4 */
 	virtual cl_int initWithValue(cl::CommandQueue* queue, void* data, size_t size) override
 	{
 		return this->initWithValue<cl_uint4>(queue, (cl_uint4*)data, size);
