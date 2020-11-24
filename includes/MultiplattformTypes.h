@@ -1,26 +1,12 @@
 #pragma once
 
 #include <string>
+#include <fstream>
 
-#ifdef __linux__
-#include <pthread.h>
-#include <unistd.h>
-#ifndef F_OK
-#define F_OK 0
-#endif
-#define MUTEXTYPE pthread_mutex_t
-#define CREATEMUTEX(mux) pthread_mutex_init(&mux, NULL)
-#define DESTROYMUTEX(mux) pthread_mutex_destroy(&mux)
-#define IS_MUTEX_VALID(mux) 1
-#define ACQUIRE_MUTEX(mux) pthread_mutex_lock(&mux);
-#define RELEASE_MUTEX(mux) pthread_mutex_unlock(&mux)
-
-#define PACKED( __Declaration__ ) __Declaration__ __attribute__((__packed__))
-#endif
 #ifdef WIN32
 #include "unistd.h"
 #include <Windows.h>
-#include <fstream>
+#include <filesystem>
 #define MUTEXTYPE HANDLE
 #define IS_MUTEX_VALID(mux) ((mux != NULL) && (mux != INVALID_HANDLE_VALUE)) 
 #define CREATEMUTEX(mux) mux = CreateMutex(NULL, FALSE, NULL)
@@ -30,6 +16,19 @@
 
 //#define PACKED( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
 #define PACK(__Declaration__) __pragma(pack(push, 1)) __Declaration__ __pragma(pack(pop))
+#else
+#include <pthread.h>
+#include <unistd.h>
+#include <experimental/filesystem>
+#define MUTEXTYPE pthread_mutex_t
+#define CREATEMUTEX(mux) pthread_mutex_init(&mux, NULL)
+#define DESTROYMUTEX(mux) pthread_mutex_destroy(&mux)
+#define IS_MUTEX_VALID(mux) 1
+#define ACQUIRE_MUTEX(mux) pthread_mutex_lock(&mux);
+#define RELEASE_MUTEX(mux) pthread_mutex_unlock(&mux)
+
+#define PACKED( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+#endif
 
 #define FILETYPE_IN std::ifstream* 
 #define FILETYPE_OUT std::ofstream* 
@@ -52,10 +51,9 @@ static inline std::string READ_LINE_MACRO(FILETYPE_IN AFile, char delimeter = '\
 #define READ_CHUNK(stream, delimeter) READ_LINE_MACRO(stream, delimeter)
 #define READ_LINE(stream) READ_LINE_MACRO(stream, '\n')
 #define CLOSE_FILE(stream) stream->close(); delete stream
-#endif
 
 inline bool fileExists(const std::string& name) {
-	return (access(name.c_str(), F_OK) != -1);
+	return std::filesystem::exists(name);
 }
 
 inline void ReplaceStringInPlace(std::string& subject, const std::string& search,
