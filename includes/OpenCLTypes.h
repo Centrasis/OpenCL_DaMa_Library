@@ -248,13 +248,13 @@ public:
 
 	[[nodiscard]] iterator begin() noexcept
 	{	// return iterator for beginning of mutable sequence
-		return (iterator(&this->value[0], _STD addressof(this->value[0])));
+		return (iterator(&this->value[0], std::addressof(this->value[0])));
 	}
 
 	/*
 	[[nodiscard]] iterator end() noexcept
 	{	// return iterator for end of mutable sequence
-		return (iterator(&this->value[currentSize], _STD addressof(this->value[currentSize])));
+		return (iterator(&this->value[currentSize], std::addressof(this->value[currentSize])));
 	}
 	*/
 	size_t getBufferLength()
@@ -380,8 +380,9 @@ class OCLTypedRingBuffer : public OCLTypedVariable<T, TScope, size>
 public:
 	OCLTypedRingBuffer() : OCLTypedVariable<T, TScope, size>()
 	{
-		OCLTypedRingBuffer(NULL, 0, name, true);
+		OCLTypedRingBuffer(NULL, 0, this->name, true);
 	}
+
 	/** Inits RingBuffer with DataSize amount of data */
 	OCLTypedRingBuffer(T* val, size_t DataSize, std::string name = "", bool bIsBlocking = true, EOCLAccessTypes accessType = EOCLAccessTypes::ATReadWrite) : OCLTypedVariable<T, TScope, size>((T*)NULL, name, bIsBlocking, accessType)
 	{
