@@ -433,7 +433,7 @@ public:
 
 	void writeNext(T& val)
 	{
-		this->currentBufferPos = this->currentBufferPos % this->size;
+		this->currentBufferPos = this->currentBufferPos % size;
 		this->value[this->currentBufferPos] = val;
 		++this->currentBufferPos;
 
@@ -493,7 +493,7 @@ public:
 			return retVal;
 		}
 
-		size_t amount = this->size - this->currentReadPos;
+		size_t amount = size - this->currentReadPos;
 		amount += readEndPosForCLDevice;
 		RELEASE_MUTEX(updateMutex);
 		return amount * sizeof(T);
