@@ -1088,7 +1088,7 @@ typedef struct FOCLKernelGroup
 } FOCLKernelGroup;
 
 #ifndef __USE_COMPILETIMERESSOURCES__
-inline FOCLKernel __dynamicConstantsFill(FOCLKernel& kernel, std::vector<std::pair<std::string, std::string>> DynamicConstants = std::vector<std::pair<std::string, std::string>>())
+inline FOCLKernel __dynamicConstantsFill(const FOCLKernel& kernel, std::vector<std::pair<std::string, std::string>> DynamicConstants = std::vector<std::pair<std::string, std::string>>())
 {
 	for (size_t i = 0; i < DynamicConstants.size(); i++)
 	{
