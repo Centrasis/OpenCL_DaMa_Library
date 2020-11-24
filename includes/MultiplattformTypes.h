@@ -25,8 +25,16 @@ namespace fs = std::experimental::filesystem;
 #else
 #include <pthread.h>
 #include <unistd.h>
+
+static inline pthread_mutex_t __CreateMutex() 
+{
+	pthread_mutex_t mux;
+	pthread_mutex_init(&mux, NULL);
+	return mux;
+}
+
 #define MUTEXTYPE pthread_mutex_t
-#define CREATEMUTEX(mux) pthread_mutex_init(&mux, NULL)
+#define CREATEMUTEX(mux) mux = __CreateMutex()
 #define DESTROYMUTEX(mux) pthread_mutex_destroy(&mux)
 #define IS_MUTEX_VALID(mux) 1
 #define ACQUIRE_MUTEX(mux) pthread_mutex_lock(&mux)

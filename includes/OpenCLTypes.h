@@ -386,7 +386,7 @@ public:
 	/** Inits RingBuffer with DataSize amount of data */
 	OCLTypedRingBuffer(T* val, size_t DataSize, std::string name = "", bool bIsBlocking = true, EOCLAccessTypes accessType = EOCLAccessTypes::ATReadWrite) : OCLTypedVariable<T, TScope, size>((T*)NULL, name, bIsBlocking, accessType)
 	{
-		currentBufferPos = DataSize;
+		this->currentBufferPos = DataSize;
 		assert(DataSize <= size);
 
 		CREATEMUTEX(updateMutex);
@@ -406,9 +406,9 @@ public:
 	virtual T& operator[] (size_t i) override
 	{ 
 		i = i % size;
-		if (currentReadPos <= currentBufferPos)
+		if (this->currentReadPos <= this->currentBufferPos)
 		{
-			if (i >= currentBufferPos)
+			if (i >= this->currentBufferPos)
 				return T();
 		}
 		else
@@ -423,22 +423,22 @@ public:
 
 	void setCurrentReadPos(size_t newPos)
 	{
-		currentReadPos = newPos;
+		this->currentReadPos = newPos;
 	}
 
 	void setCurrentWritePos(size_t newPos)
 	{
-		currentBufferPos = newPos;
+		this->currentBufferPos = newPos;
 	}
 
 	void writeNext(T& val)
 	{
-		currentBufferPos = currentBufferPos % size;
-		this->value[currentBufferPos] = val;
-		++currentBufferPos;
+		this->currentBufferPos = this->currentBufferPos % this->size;
+		this->value[this->currentBufferPos] = val;
+		++this->currentBufferPos;
 
 		if (this->bisUploaded)
-			bisUploaded = false;
+			this->bisUploaded = false;
 	}
 
 	void writeNext(T* val, size_t len)
@@ -533,7 +533,7 @@ public:
 			errcode |= queue->enqueueWriteBuffer(*(cl::Buffer*)this->getCLMemoryObject(NULL), this->getIsBlocking() ? CL_TRUE : CL_FALSE, 0, readEndPosForCLDevice * sizeof(T), &this->value[0]);
 
 		if (errcode == CL_SUCCESS)
-			bisUploaded = true;
+			this->bisUploaded = true;
 
 		return errcode;
 	}
@@ -548,8 +548,8 @@ protected:
 	MUTEXTYPE updateMutex;
 };
 
-template<typename T>
-class OCLMemoryVariable : public OCLTypedVariable<T>
+template<typename TMem>
+class OCLMemoryVariable : public OCLTypedVariable<TMem>
 {
 private:
 	void* hostPtr = NULL;
@@ -557,35 +557,35 @@ private:
 	EOCLAccessTypes HostAccess = EOCLAccessTypes::ATReadWrite;
 
 public:
-	OCLMemoryVariable() : OCLTypedVariable<T>()
+	OCLMemoryVariable() : OCLTypedVariable<TMem>()
 	{
-		assert((std::is_base_of<cl::Memory, T>()));
+		assert((std::is_base_of<cl::Memory, TMem>()));
 
-		if ((std::is_base_of<cl::Image, T>()))
+		if ((std::is_base_of<cl::Image, TMem>()))
 			BufferType = EOCLBufferType::BTCLImage;
-		if ((std::is_base_of<cl::ImageGL, T>()))
+		if ((std::is_base_of<cl::ImageGL, TMem>()))
 			BufferType = EOCLBufferType::BTGLImage;
 	}
 
-	OCLMemoryVariable(T* val, std::string name = "", bool bIsBlocking = true, EOCLAccessTypes accessType = EOCLAccessTypes::ATReadWrite, void* hostPointer = NULL) : OCLTypedVariable<T>(val, name, bIsBlocking, accessType)
+	OCLMemoryVariable(TMem* val, std::string name = "", bool bIsBlocking = true, EOCLAccessTypes accessType = EOCLAccessTypes::ATReadWrite, void* hostPointer = NULL) : OCLTypedVariable<TMem>(val, name, bIsBlocking, accessType)
 	{
-		assert((std::is_base_of<cl::Memory, T>()));
+		assert((std::is_base_of<cl::Memory, TMem>()));
 
-		if ((std::is_base_of<cl::Image, T>()))
+		if ((std::is_base_of<cl::Image, TMem>()))
 			BufferType = EOCLBufferType::BTCLImage;
-		if ((std::is_base_of<cl::ImageGL, T>()))
+		if ((std::is_base_of<cl::ImageGL, TMem>()))
 			BufferType = EOCLBufferType::BTGLImage;
 
 		hostPtr = hostPointer;
 	}
 
-	OCLMemoryVariable(T val, std::string name = "", bool bIsBlocking = true, EOCLAccessTypes accessType = EOCLAccessTypes::ATReadWrite, void* hostPointer = NULL) : OCLTypedVariable<T>(val, name, bIsBlocking, accessType)
+	OCLMemoryVariable(TMem val, std::string name = "", bool bIsBlocking = true, EOCLAccessTypes accessType = EOCLAccessTypes::ATReadWrite, void* hostPointer = NULL) : OCLTypedVariable<TMem>(val, name, bIsBlocking, accessType)
 	{
-		assert((std::is_base_of<cl::Memory, T>()));
+		assert((std::is_base_of<cl::Memory, TMem>()));
 
-		if ((std::is_base_of<cl::Image, T>()))
+		if ((std::is_base_of<cl::Image, TMem>()))
 			BufferType = EOCLBufferType::BTCLImage;
-		if ((std::is_base_of<cl::ImageGL, T>()))
+		if ((std::is_base_of<cl::ImageGL, TMem>()))
 			BufferType = EOCLBufferType::BTGLImage;
 
 		hostPtr = hostPointer;
@@ -612,7 +612,7 @@ public:
 		if (this->getBufferType() == BTCLImage && this->getHostPointer() != NULL)
 		{
 			const cl::size_t<3> origin;
-			cl::Image* img = (cl::Image*)getValue();
+			cl::Image* img = (cl::Image*)this->getValue();
 			cl::size_t<3> size;
 			size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
 			size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
@@ -634,7 +634,7 @@ public:
 		if (getBufferType() == BTCLImage && hostPtr != NULL)
 		{
 			const cl::size_t<3> origin;
-			cl::Image* img = (cl::Image*)getValue();
+			cl::Image* img = (cl::Image*)this->getValue();
 			cl::size_t<3> size;
 			size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
 			size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
@@ -655,15 +655,15 @@ public:
 
 protected:
 	/** possible data type for init image is cl_uint4 */
-	template<typename T>
-	cl_int initWithValue(cl::CommandQueue* queue, T* data, size_t size)
+	template<typename dType>
+	cl_int initWithValue(cl::CommandQueue* queue, dType* data, size_t size)
 	{
 		switch (getBufferType())
 		{
 			case BTCLImage:
 			{
 				const cl::size_t<3> origin;
-				cl::Image* img = (cl::Image*)getValue();
+				cl::Image* img = (cl::Image*)this->getValue();
 				cl::size_t<3> size;
 				size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
 				size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
