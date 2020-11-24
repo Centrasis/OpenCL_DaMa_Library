@@ -232,7 +232,7 @@ public:
 	}
 
 	virtual void* getValue() override { return this->value; };
-	virtual void  setValue(void* val) override { for (int i = 0; i < currentSize; i++) this->value[i] = *(((T*)val) + i); bisUploaded = false; };
+	virtual void  setValue(void* val) override { for (int i = 0; i < currentSize; i++) this->value[i] = *(((T*)val) + i); this->bisUploaded = false; };
 	virtual size_t getTypeSize() override { return sizeof(T); };
 	virtual size_t getSize() override 
 	{ 
@@ -350,15 +350,15 @@ public:
 	void ForceCLBuffer() { this->bForceCLBuffer = true; };
 
 	T value[size];
-	virtual void* getValue() override { return &value[0]; };
-	virtual void  setValue(void* val) override { for(int i = 0; i < size; i++) value[i] = *(((T*)val) + i); bisUploaded = false; bisUploaded = false; };
+	virtual void* getValue() override { return &this->value[0]; };
+	virtual void  setValue(void* val) override { for(int i = 0; i < size; i++) this->value[i] = *(((T*)val) + i); this->bisUploaded = false; this->bisUploaded = false; };
 	virtual size_t getTypeSize() override { return sizeof(T); };
 	virtual size_t getSize() override { return size * sizeof(T); };
-	T* getTypedValue() { return ((T*)(&value[0])); };
+	T* getTypedValue() { return ((T*)(&this->value[0])); };
 	virtual bool needsCLBuffer() override { return bForceCLBuffer; };
 	virtual EOCLBufferType getBufferType() override { return EOCLBufferType::BTNative; };
 	operator OCLVariable*() const { return (OCLVariable*)this; };
-	virtual T& operator[](size_t i) { return value[i]; }
+	virtual T& operator[](size_t i) { return this->value[i]; }
 	virtual cl::Memory* getCLMemoryObject(cl::Context* context) override 
 	{
 		if (context == NULL)
@@ -418,7 +418,7 @@ public:
 			//	return T();
 		}
 
-		return value[i];
+		return this->value[i];
 	}
 
 	void setCurrentReadPos(size_t newPos)
@@ -444,7 +444,7 @@ public:
 	void writeNext(T* val, size_t len)
 	{
 		for(size_t i = 0; i < len; i++)
-		    value[(currentBufferPos + i) % size] = val;
+			this->value[(currentBufferPos + i) % size] = val;
 
 		currentBufferPos += len;
 
@@ -465,7 +465,7 @@ public:
 
 		currentReadPos = currentReadPos % size;
 		currentReadPos++;
-		return value[currentReadPos-1];
+		return this->value[currentReadPos-1];
 	}
 
 	virtual void* getValue() override
@@ -508,7 +508,7 @@ public:
 		currentReadPos = readEndPosForCLDevice;
 		//readEndPosForCLDevice = currentBufferPos;
 		RELEASE_MUTEX(updateMutex);
-		return &value[0];
+		return &this->value[0];
 	}
 
 	virtual cl_int uploadBuffer(cl::CommandQueue* queue) override
@@ -524,13 +524,13 @@ public:
 
 		if (lreadPos <= readEndPosForCLDevice)
 		{
-			return queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), (readEndPosForCLDevice - lreadPos) * sizeof(T), &value[lreadPos]);
+			return queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), (readEndPosForCLDevice - lreadPos) * sizeof(T), &this->value[lreadPos]);
 		}
 
 		size_t amoutToEnd = size - lreadPos;
-		cl_int errcode = queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), amoutToEnd * sizeof(T), &value[lreadPos]);
+		cl_int errcode = queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), amoutToEnd * sizeof(T), &this->value[lreadPos]);
 		if(readEndPosForCLDevice > 0)
-			errcode |= queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, 0, readEndPosForCLDevice * sizeof(T), &value[0]);
+			errcode |= queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, 0, readEndPosForCLDevice * sizeof(T), &this->value[0]);
 
 		if (errcode == CL_SUCCESS)
 			bisUploaded = true;
