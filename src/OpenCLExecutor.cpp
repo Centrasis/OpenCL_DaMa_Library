@@ -1,6 +1,10 @@
 #include "OpenCLExecutor.h"
 #include <math.h>
+#ifndef WIN32
 #include <unistd.h>
+#else
+#include <windows.h>
+#endif
 #include <sstream>
 
 OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
@@ -14,8 +18,8 @@ OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
   {
 #ifndef WIN32
 	struct timespec time;
-    tim.tv_sec = 0;
-    tim.tv_nsec = 500000000L;
+	time.tv_sec = 0;
+	time.tv_nsec = 500000000L;
 #endif
 
 	  while (true)
