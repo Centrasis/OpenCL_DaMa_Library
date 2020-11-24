@@ -334,7 +334,7 @@ public:
 			this->value[i] = var.value[i];
 	}
 
-	OCLTypedVariable<T, TScope, size>& operator =(const OCLTypedVariable<T, TScope>& var)
+	OCLTypedVariable<T, TScope, size> operator =(const OCLTypedVariable<T, TScope>& var)
 	{
 		return OCLTypedVariable<T, TScope, size>(var);
 	}
@@ -377,6 +377,9 @@ public:
 template<typename T, size_t size, EOCLArgumentScope TScope = EOCLArgumentScope::ASGlobal>
 class OCLTypedRingBuffer : public OCLTypedVariable<T, TScope, size>
 {
+protected:
+	T defaultValue;
+
 public:
 	OCLTypedRingBuffer() : OCLTypedVariable<T, TScope, size>()
 	{
@@ -409,13 +412,13 @@ public:
 		if (this->currentReadPos <= this->currentBufferPos)
 		{
 			if (i >= this->currentBufferPos)
-				return T();
+				return this->defaultValue;
 		}
 		else
 		{
 			// -->-BP---i----RP->-- was forbidden..
 			//if (i > currentBufferPos && i < currentReadPos)
-			//	return T();
+			//	return this->defaultValue;
 		}
 
 		return this->value[i];
