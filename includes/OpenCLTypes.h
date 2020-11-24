@@ -8,10 +8,8 @@
 
 #ifndef __USE_COMPILETIMERESSOURCES__
 #ifdef WIN32
-#include <filesystem>
 #include <Windows.h>
 #else
-#include <experimental/filesystem>
 #include <unistd.h>
 #endif
 #endif
