@@ -23,7 +23,7 @@
 #include <assert.h>
 #include "MultiplattformTypes.h"
 #include <regex>
-#include <exception>
+#include <stdexcept>
 #include <memory>
 
 namespace cl
@@ -39,10 +39,10 @@ namespace cl
 	}
 }
 
-struct OCLException : public std::exception
+struct OCLException : public std::runtime_error
 {
 	explicit OCLException(std::string _Message) noexcept
-		: std::exception(_Message.c_str())
+		: std::runtime_error(_Message.c_str())
 	{
 
 	}
@@ -247,13 +247,13 @@ public:
 	using _Mybase = std::vector<T>;
 	using iterator = typename _Mybase::iterator;
 
-	_NODISCARD iterator begin() noexcept
+	[[nodiscard("ITERATOR ASKED FOR IT")]] iterator begin() noexcept
 	{	// return iterator for beginning of mutable sequence
 		return (iterator(&this->value[0], _STD addressof(this->value[0])));
 	}
 
 	/*
-	_NODISCARD iterator end() noexcept
+	[[nodiscard("ITERATOR ASKED FOR IT")]] iterator end() noexcept
 	{	// return iterator for end of mutable sequence
 		return (iterator(&this->value[currentSize], _STD addressof(this->value[currentSize])));
 	}
@@ -1100,12 +1100,12 @@ inline FOCLKernel __dynamicConstantsFill(FOCLKernel& kernel, std::vector<std::pa
 
 inline FOCLKernel loadOCLKernel_helper(std::string name, std::string mainMethodName = "main_kernel")
 {
-
-	wchar_t* buf = (wchar_t*) malloc(255 * sizeof(wchar_t));
-	_wgetcwd(buf, 255);
+	/*wchar_t* buf = static_cast<wchar_t*>(malloc(255 * sizeof(wchar_t)));
+	wchar_t* r = _wgetcwd(buf, 255);
 	std::wstring ws(buf);
-	std::string cwd(ws.begin(), ws.end());
-	std::string basepath = cwd + "/../libkatherine/TimePix/src/opencl/";
+	std::string cwd(ws.begin(), ws.end());*/
+	std::string cwd = fs::current_path().string();
+	std::string basepath = cwd + "/opencl/";
 	std::ifstream t(basepath + name + ".cl");
 	std::stringstream buffer;
 	buffer << t.rdbuf();
@@ -1148,7 +1148,7 @@ inline FOCLKernel loadOCLKernel_helper(std::string name, std::string mainMethodN
 
 	FOCLKernel kernel(mainMethodName, source);
 
-	delete buf;
+	//delete buf;
 
 	return kernel;
 }
