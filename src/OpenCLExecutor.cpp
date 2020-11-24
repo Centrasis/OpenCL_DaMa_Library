@@ -1,5 +1,6 @@
 #include "OpenCLExecutor.h"
 #include <math.h>
+#include <unistd.h>
 #include <sstream>
 
 OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
@@ -11,12 +12,18 @@ OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
 
   void OpenCLExecutor::resolveLockThreadExec()
   {
+#ifndef WIN32
+	struct timespec time;
+    tim.tv_sec = 0;
+    tim.tv_nsec = 500000000L;
+#endif
+
 	  while (true)
 	  {
 #ifdef WIN32
 		Sleep(500);
 #else
-		sleep(500);
+		nanosleep(time);
 #endif
 		resolveLocks();
 	  }
