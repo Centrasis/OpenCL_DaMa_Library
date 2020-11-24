@@ -17,10 +17,10 @@ jobs:
         uses: Dovyski/setup-opencv-action@v1
         with:
           opencv-version: 4.0.0
-          opencv-extra-modules: true
+          opencv-extra-modules: false
           install-deps: true
           CMAKE_BUILD_TYPE: RELEASE
-          WITH_OPENGL: true
+          WITH_OPENGL: false
           BUILD_NEW_PYTHON_SUPPORT: false
       - name: Setup OpenCL
         run: sudo apt install ocl-icd-* opencl-headers
