@@ -28,7 +28,10 @@ jobs:
       - name: Setup OpenCL
         run: sudo apt install ocl-icd-* opencl-headers
       - name: Make OCL DaMa
-        run: cmake -E env CXXFLAGS="-lstdc++fs"
-        run: cmake -S . -B build
+        steps:
+          - name: Settings flags
+            run: cmake -E env CXXFLAGS="-lstdc++fs"
+          - name: CMake build
+            run: cmake -S . -B build
       - name: Build OCL DaMA
         run: cmake --build build --config Release
