@@ -18,7 +18,7 @@ OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
   void OpenCLExecutor::resolveLockThreadExec()
   {
 #ifndef WIN32
-	struct timespec time;
+	struct timespec time, time2;
 	time.tv_sec = 0;
 	time.tv_nsec = 500000000L;
 #endif
@@ -28,7 +28,7 @@ OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
 #ifdef WIN32
 		Sleep(500);
 #else
-		nanosleep(time);
+		nanosleep(&time, &time2);
 #endif
 		resolveLocks();
 	  }
