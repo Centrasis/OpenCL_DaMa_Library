@@ -13,8 +13,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup OpenCV
+      - name: Update apt...
         run: sudo apt update
+      - name: Setup OpenCV
         run: sudo apt install libopencv-dev
 #        uses: Dovyski/setup-opencv-action@v1
 #        with:
@@ -25,7 +26,6 @@ jobs:
 #          WITH_OPENGL: false
 #          BUILD_NEW_PYTHON_SUPPORT: false
       - name: Setup OpenCL
-        run: sudo apt update
         run: sudo apt install ocl-icd-* opencl-headers
       - name: Make OCL DaMa
         run: cmake -S . -B build
