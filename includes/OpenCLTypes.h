@@ -172,7 +172,6 @@ protected:
 	MUTEXTYPE CL_LOCK;
 	MUTEXTYPE HOST_LOCK;
 };
-
 template<typename T, EOCLArgumentScope TScope = EOCLArgumentScope::ASGlobal>
 class OCLDynamicTypedBuffer : public OCLVariable
 {
@@ -335,7 +334,7 @@ public:
 			this->value[i] = var.value[i];
 	}
 
-	OCLTypedVariable<T, TScope, size> operator =(const OCLTypedVariable<T, TScope>& var)
+	OCLTypedVariable<T, TScope, size>& operator =(const OCLTypedVariable<T, TScope>& var)
 	{
 		return OCLTypedVariable<T, TScope, size>(var);
 	}
@@ -378,9 +377,6 @@ public:
 template<typename T, size_t size, EOCLArgumentScope TScope = EOCLArgumentScope::ASGlobal>
 class OCLTypedRingBuffer : public OCLTypedVariable<T, TScope, size>
 {
-protected:
-	T defaultValue;
-
 public:
 	OCLTypedRingBuffer() : OCLTypedVariable<T, TScope, size>()
 	{
@@ -413,13 +409,13 @@ public:
 		if (this->currentReadPos <= this->currentBufferPos)
 		{
 			if (i >= this->currentBufferPos)
-				return this->defaultValue;
+				return T();
 		}
 		else
 		{
 			// -->-BP---i----RP->-- was forbidden..
 			//if (i > currentBufferPos && i < currentReadPos)
-			//	return this->defaultValue;
+			//	return T();
 		}
 
 		return this->value[i];
@@ -448,7 +444,7 @@ public:
 	void writeNext(T* val, size_t len)
 	{
 		for(size_t i = 0; i < len; i++)
-			this->value[(this->currentBufferPos + i) % this->size] = val;
+			this->value[(this->currentBufferPos + i) % size] = val;
 
 		this->currentBufferPos += len;
 
@@ -467,7 +463,7 @@ public:
 		if (this->currentReadPos == this->currentBufferPos)
 			return NULL;
 
-		this->currentReadPos = this->currentReadPos % this->size;
+		this->currentReadPos = this->currentReadPos % size;
 		this->currentReadPos++;
 		return this->value[this->currentReadPos-1];
 	}

@@ -40,7 +40,7 @@ static inline pthread_mutex_t __CreateMutex()
 #define ACQUIRE_MUTEX(mux) pthread_mutex_lock(&mux)
 #define RELEASE_MUTEX(mux) pthread_mutex_unlock(&mux)
 
-#define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+#define PACKED( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif
 
 #define FILETYPE_IN std::ifstream* 
