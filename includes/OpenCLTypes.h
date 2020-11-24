@@ -247,13 +247,13 @@ public:
 	using _Mybase = std::vector<T>;
 	using iterator = typename _Mybase::iterator;
 
-	[[nodiscard("ITERATOR ASKED FOR IT")]] iterator begin() noexcept
+	[[nodiscard]] iterator begin() noexcept
 	{	// return iterator for beginning of mutable sequence
 		return (iterator(&this->value[0], _STD addressof(this->value[0])));
 	}
 
 	/*
-	[[nodiscard("ITERATOR ASKED FOR IT")]] iterator end() noexcept
+	[[nodiscard]] iterator end() noexcept
 	{	// return iterator for end of mutable sequence
 		return (iterator(&this->value[currentSize], _STD addressof(this->value[currentSize])));
 	}
