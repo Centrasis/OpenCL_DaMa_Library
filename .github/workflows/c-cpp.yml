@@ -29,5 +29,5 @@ jobs:
         run: sudo apt install ocl-icd-* opencl-headers
       - name: Make OCL DaMa
         run: cmake -S . -B build
-      - name: Build OCL DaMA
+      - name: Build OCL DaMa
         run: cmake --build build --config Release

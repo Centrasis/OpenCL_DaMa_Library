@@ -2,7 +2,13 @@
 
 #include <string>
 #include <fstream>
+#if __has_include(<filesystem>)
 #include <filesystem>
+namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#endif
 
 #ifdef WIN32
 #include "unistd.h"
@@ -52,7 +58,7 @@ static inline std::string READ_LINE_MACRO(FILETYPE_IN AFile, char delimeter = '\
 #define CLOSE_FILE(stream) stream->close(); delete stream
 
 inline bool fileExists(const std::string& name) {
-	return std::filesystem::exists(name);
+	return fs::exists(name);
 }
 
 inline void ReplaceStringInPlace(std::string& subject, const std::string& search,
