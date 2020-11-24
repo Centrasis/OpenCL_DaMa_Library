@@ -9,8 +9,10 @@
 #ifndef __USE_COMPILETIMERESSOURCES__
 #ifdef WIN32
 #include <filesystem>
+#include <windows.h>
 #else
 #include <experimental/filesystem>
+#include <unistd.h>
 #endif
 #endif
 #ifdef  __USE_COMPILETIMERESSOURCES__
