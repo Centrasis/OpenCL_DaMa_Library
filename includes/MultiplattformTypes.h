@@ -2,11 +2,11 @@
 
 #include <string>
 #include <fstream>
+#include <filesystem>
 
 #ifdef WIN32
 #include "unistd.h"
 #include <Windows.h>
-#include <filesystem>
 #define MUTEXTYPE HANDLE
 #define IS_MUTEX_VALID(mux) ((mux != NULL) && (mux != INVALID_HANDLE_VALUE)) 
 #define CREATEMUTEX(mux) mux = CreateMutex(NULL, FALSE, NULL)
@@ -19,12 +19,11 @@
 #else
 #include <pthread.h>
 #include <unistd.h>
-#include <experimental/filesystem>
 #define MUTEXTYPE pthread_mutex_t
 #define CREATEMUTEX(mux) pthread_mutex_init(&mux, NULL)
 #define DESTROYMUTEX(mux) pthread_mutex_destroy(&mux)
 #define IS_MUTEX_VALID(mux) 1
-#define ACQUIRE_MUTEX(mux) pthread_mutex_lock(&mux);
+#define ACQUIRE_MUTEX(mux) pthread_mutex_lock(&mux)
 #define RELEASE_MUTEX(mux) pthread_mutex_unlock(&mux)
 
 #define PACKED( __Declaration__ ) __Declaration__ __attribute__((__packed__))
