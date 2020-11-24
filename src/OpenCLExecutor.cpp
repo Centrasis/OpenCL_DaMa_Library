@@ -2,6 +2,7 @@
 #include <math.h>
 #ifndef WIN32
 #include <unistd.h>
+#include <time.h>
 #else
 #include <windows.h>
 #endif
