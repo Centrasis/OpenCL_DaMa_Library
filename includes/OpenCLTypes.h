@@ -112,7 +112,7 @@ public:
 	}
 	virtual cl_int uploadBuffer(cl::CommandQueue* queue)
 	{
-		if (bisUploaded || getCLMemoryObject(NULL) == NULL || getAccessType() == ATWrite)
+		if (this->bisUploaded || this->getCLMemoryObject(NULL) == NULL || this->getAccessType() == ATWrite)
 			return CL_SUCCESS;
 
 		size_t offset = getDataOffset();
@@ -126,7 +126,7 @@ public:
 		if (offset + actualDataSize > getSize())
 			throw OCLException("trying to read from undefined buffer position!");
 
-		cl_int errCode = queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, offset, actualDataSize, ptr);
+		cl_int errCode = queue->enqueueWriteBuffer(*(cl::Buffer*)this->getCLMemoryObject(NULL), this->getIsBlocking() ? CL_TRUE : CL_FALSE, offset, actualDataSize, ptr);
 		if(errCode == CL_SUCCESS)
 			bisUploaded = true;
 
@@ -135,11 +135,11 @@ public:
 
 	virtual cl_int downloadBuffer(cl::CommandQueue* queue)
 	{
-		if (getCLMemoryObject(NULL) == NULL)
+		if (this->getCLMemoryObject(NULL) == NULL)
 			return CL_SUCCESS;
 
-		if (getAccessType() == EOCLAccessTypes::ATWrite || getAccessType() == EOCLAccessTypes::ATReadWrite)
-			return queue->enqueueReadBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, 0, getSize(), getValue());
+		if (this->getAccessType() == EOCLAccessTypes::ATWrite || this->getAccessType() == EOCLAccessTypes::ATReadWrite)
+			return queue->enqueueReadBuffer(*(cl::Buffer*)this->getCLMemoryObject(NULL), this->getIsBlocking() ? CL_TRUE : CL_FALSE, 0, this->getSize(), this->getValue());
 
 		return CL_SUCCESS;
 	}
@@ -152,7 +152,7 @@ public:
 
 	inline void acquireCLMemory()
 	{
-		if (getCLMemoryObject(NULL) != NULL)
+		if (this->getCLMemoryObject(NULL) != NULL)
 		{
 			ACQUIRE_MUTEX(CL_LOCK);
 		}
@@ -290,7 +290,7 @@ public:
 			return NULL;
 
 		if (this->memoryBuffer == NULL)
-			this->memoryBuffer = new cl::Buffer(*context, getAccessType(), getSize());
+			this->memoryBuffer = new cl::Buffer(*context, this->getAccessType(), getSize());
 
 		return this->memoryBuffer;
 	};
@@ -368,7 +368,7 @@ public:
 			return NULL;
 
 		if(this->memoryBuffer == NULL)
-		   this->memoryBuffer = new cl::Buffer(*context, getAccessType(), getSize());
+		   this->memoryBuffer = new cl::Buffer(*context, this->getAccessType(), this->getSize());
 
 		return this->memoryBuffer;
 	};
@@ -434,38 +434,38 @@ public:
 	void writeNext(T& val)
 	{
 		currentBufferPos = currentBufferPos % size;
-		value[currentBufferPos] = val;
+		this->value[currentBufferPos] = val;
 		++currentBufferPos;
 
-		if (bisUploaded)
+		if (this->bisUploaded)
 			bisUploaded = false;
 	}
 
 	void writeNext(T* val, size_t len)
 	{
 		for(size_t i = 0; i < len; i++)
-			this->value[(currentBufferPos + i) % size] = val;
+			this->value[(this->currentBufferPos + i) % this->size] = val;
 
-		currentBufferPos += len;
+		this->currentBufferPos += len;
 
-		if (bisUploaded)
-			bisUploaded = false;
+		if (this->bisUploaded)
+			this->bisUploaded = false;
 	}
 
 	size_t* getWriteBufferPtr()
 	{
-		return &currentBufferPos;
+		return &this->currentBufferPos;
 	}
 
 	/** @Returns ref to next data*/
 	T& readNext()
 	{
-		if (currentReadPos == currentBufferPos)
+		if (this->currentReadPos == this->currentBufferPos)
 			return NULL;
 
-		currentReadPos = currentReadPos % size;
-		currentReadPos++;
-		return this->value[currentReadPos-1];
+		this->currentReadPos = this->currentReadPos % this->size;
+		this->currentReadPos++;
+		return this->value[this->currentReadPos-1];
 	}
 
 	virtual void* getValue() override
@@ -486,14 +486,14 @@ public:
 	virtual size_t getAvailableData() override 
 	{ 
 		ACQUIRE_MUTEX(updateMutex);
-		if (readEndPosForCLDevice >= currentReadPos)
+		if (readEndPosForCLDevice >= this->currentReadPos)
 		{
-			size_t retVal = (readEndPosForCLDevice - currentReadPos) * sizeof(T);
+			size_t retVal = (readEndPosForCLDevice - this->currentReadPos) * sizeof(T);
 			RELEASE_MUTEX(updateMutex);
 			return retVal;
 		}
 
-		size_t amount = size - currentReadPos;
+		size_t amount = this->size - this->currentReadPos;
 		amount += readEndPosForCLDevice;
 		RELEASE_MUTEX(updateMutex);
 		return amount * sizeof(T);
@@ -505,7 +505,7 @@ public:
 		ACQUIRE_MUTEX(updateMutex);
 		//virtualBufferPosOnCLDevice = (virtualBufferPosOnCLDevice + currentBufferPos) % size;
 		//currentBufferPos = 0;
-		currentReadPos = readEndPosForCLDevice;
+		this->currentReadPos = readEndPosForCLDevice;
 		//readEndPosForCLDevice = currentBufferPos;
 		RELEASE_MUTEX(updateMutex);
 		return &this->value[0];
@@ -513,24 +513,24 @@ public:
 
 	virtual cl_int uploadBuffer(cl::CommandQueue* queue) override
 	{
-		if (bisUploaded || getCLMemoryObject(NULL) == NULL || getAccessType() == ATWrite)
+		if (this->bisUploaded || this->getCLMemoryObject(NULL) == NULL || this->getAccessType() == ATWrite)
 			return CL_SUCCESS;
 
 		size_t lreadPos = currentReadPos;
-		currentReadPos = readEndPosForCLDevice % size;
+		this->currentReadPos = readEndPosForCLDevice % size;
 
 		if (lreadPos == readEndPosForCLDevice)
 			return CL_SUCCESS;
 
 		if (lreadPos <= readEndPosForCLDevice)
 		{
-			return queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), (readEndPosForCLDevice - lreadPos) * sizeof(T), &this->value[lreadPos]);
+			return queue->enqueueWriteBuffer(*(cl::Buffer*)this->getCLMemoryObject(NULL), this->getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), (readEndPosForCLDevice - lreadPos) * sizeof(T), &this->value[lreadPos]);
 		}
 
 		size_t amoutToEnd = size - lreadPos;
-		cl_int errcode = queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), amoutToEnd * sizeof(T), &this->value[lreadPos]);
+		cl_int errcode = queue->enqueueWriteBuffer(*(cl::Buffer*)this->getCLMemoryObject(NULL), this->getIsBlocking() ? CL_TRUE : CL_FALSE, lreadPos * sizeof(T), amoutToEnd * sizeof(T), &this->value[lreadPos]);
 		if(readEndPosForCLDevice > 0)
-			errcode |= queue->enqueueWriteBuffer(*(cl::Buffer*)getCLMemoryObject(NULL), getIsBlocking() ? CL_TRUE : CL_FALSE, 0, readEndPosForCLDevice * sizeof(T), &this->value[0]);
+			errcode |= queue->enqueueWriteBuffer(*(cl::Buffer*)this->getCLMemoryObject(NULL), this->getIsBlocking() ? CL_TRUE : CL_FALSE, 0, readEndPosForCLDevice * sizeof(T), &this->value[0]);
 
 		if (errcode == CL_SUCCESS)
 			bisUploaded = true;
@@ -606,10 +606,10 @@ public:
 
 	virtual cl_int uploadBuffer(cl::CommandQueue* queue) override
 	{
-		if (getAccessType() == ATWrite || HostAccess == ATWrite)
+		if (this->getAccessType() == ATWrite || HostAccess == ATWrite)
 			return CL_SUCCESS;
 
-		if (getBufferType() == BTCLImage && getHostPointer() != NULL)
+		if (this->getBufferType() == BTCLImage && this->getHostPointer() != NULL)
 		{
 			const cl::size_t<3> origin;
 			cl::Image* img = (cl::Image*)getValue();
@@ -617,7 +617,7 @@ public:
 			size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
 			size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
 			size[2] = 1;
-			return queue->enqueueWriteImage(*img, (getIsBlocking()) ? CL_TRUE : CL_FALSE, origin, size, 0, 0, getHostPointer(), NULL, NULL);
+			return queue->enqueueWriteImage(*img, (this->getIsBlocking()) ? CL_TRUE : CL_FALSE, origin, size, 0, 0, this->getHostPointer(), NULL, NULL);
 		}
 
 		throw OCLException("Trying to upload not implemented memory object!");
@@ -639,7 +639,7 @@ public:
 			size[0] = img->getImageInfo<CL_IMAGE_WIDTH>();
 			size[1] = img->getImageInfo<CL_IMAGE_HEIGHT>();
 			size[2] = 1;
-			return queue->enqueueReadImage(*img, getIsBlocking() ? CL_TRUE : CL_FALSE, origin, size, 0, 0, hostPtr, 0, 0);
+			return queue->enqueueReadImage(*img, this->getIsBlocking() ? CL_TRUE : CL_FALSE, origin, size, 0, 0, hostPtr, 0, 0);
 		}
 
 		throw OCLException("Trying to download unimplemented memory object!");
