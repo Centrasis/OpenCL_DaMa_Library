@@ -7,8 +7,11 @@
 #include <CL/cl.hpp>
 
 #ifndef __USE_COMPILETIMERESSOURCES__
+#ifdef WIN32
 #include <filesystem>
-#include <Windows.h>
+#else
+#include <experimental/filesystem>
+#endif
 #endif
 #ifdef  __USE_COMPILETIMERESSOURCES__
 #include "OCLRes.h"
