@@ -39,8 +39,11 @@ static inline pthread_mutex_t __CreateMutex()
 #define IS_MUTEX_VALID(mux) 1
 #define ACQUIRE_MUTEX(mux) pthread_mutex_lock(&mux)
 #define RELEASE_MUTEX(mux) pthread_mutex_unlock(&mux)
-
+#ifdef __SIMULATION__
+PACK( __Declaration__ ) __Declaration__
+#else
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+#endif
 #endif
 
 #define FILETYPE_IN std::ifstream* 
