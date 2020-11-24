@@ -204,7 +204,6 @@ public:
 	{
 		if(currentSize > 0)
 			delete[] value;
-		OCLVariable::~OCLVariable();
 	}
 
 	OCLDynamicTypedBuffer(const OCLDynamicTypedBuffer<T, TScope>& var) : OCLVariable(var.name, var.bIsBlocking, var.accessType)
@@ -346,8 +345,6 @@ public:
 		{
 			delete memoryBuffer;
 		}
-
-		OCLVariable::~OCLVariable();
 	}
 
 	void ForceCLBuffer() { bForceCLBuffer = true; };
@@ -403,7 +400,6 @@ public:
 	virtual ~OCLTypedRingBuffer() override
 	{
 		DESTROYMUTEX(updateMutex);
-		OCLTypedVariable<T, TScope, size>::~OCLTypedVariable();
 	}
 
 	virtual T& operator[] (size_t i) override
@@ -1100,10 +1096,6 @@ inline FOCLKernel __dynamicConstantsFill(FOCLKernel& kernel, std::vector<std::pa
 
 inline FOCLKernel loadOCLKernel_helper(std::string name, std::string mainMethodName = "main_kernel")
 {
-	/*wchar_t* buf = static_cast<wchar_t*>(malloc(255 * sizeof(wchar_t)));
-	wchar_t* r = _wgetcwd(buf, 255);
-	std::wstring ws(buf);
-	std::string cwd(ws.begin(), ws.end());*/
 	std::string cwd = fs::current_path().string();
 	std::string basepath = cwd + "/opencl/";
 	std::ifstream t(basepath + name + ".cl");
@@ -1147,8 +1139,6 @@ inline FOCLKernel loadOCLKernel_helper(std::string name, std::string mainMethodN
 	};
 
 	FOCLKernel kernel(mainMethodName, source);
-
-	//delete buf;
 
 	return kernel;
 }
