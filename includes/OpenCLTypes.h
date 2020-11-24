@@ -601,7 +601,7 @@ public:
 	virtual void  setHostPointer(void* val) { hostPtr = val; };
 	virtual cl::Memory* getCLMemoryObject(cl::Context* context) override
 	{
-		return (cl::Memory*) getValue();
+		return (cl::Memory*) this->getValue();
 	};
 
 	virtual cl_int uploadBuffer(cl::CommandQueue* queue) override

@@ -12,8 +12,12 @@ OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
   {
 	  while (true)
 	  {
-		  Sleep(500);
-		  resolveLocks();
+#ifdef WIN32
+		Sleep(500);
+#else
+		sleep(500);
+#endif
+		resolveLocks();
 	  }
   }
 
