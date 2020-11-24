@@ -1,4 +1,5 @@
 #include "OpenCLExecutor.h"
+#include <math.h>
 #include <sstream>
 
 OpenCLExecutor* OpenCLExecutor::internalExec = NULL;
