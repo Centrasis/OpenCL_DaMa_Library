@@ -379,7 +379,7 @@ template<typename T, size_t size, EOCLArgumentScope TScope = EOCLArgumentScope::
 class OCLTypedRingBuffer : public OCLTypedVariable<T, TScope, size>
 {
 protected:
-	const T defaultValue;
+	T defaultValue;
 
 public:
 	OCLTypedRingBuffer() : OCLTypedVariable<T, TScope, size>()
