@@ -22,11 +22,9 @@ jobs:
           CMAKE_BUILD_TYPE: RELEASE
           WITH_OPENGL: true
           BUILD_NEW_PYTHON_SUPPORT: false
-      - name: configure
-        run: cmake .
-      - name: make
-        run: make
-      - name: make check
-        run: make check
-      - name: make distcheck
-        run: make distcheck
+      - name: Setup OpenCL
+        run: sudo apt install ocl-icd-* opencl-headers
+      - name: Make OCL DaMa
+        run: cmake -S . -B build
+      - name: Build OCL DaMA
+        run: cmake --build build --config Release
