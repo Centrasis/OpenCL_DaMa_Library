@@ -91,7 +91,7 @@ public:
 
 	virtual ~OCLVariable() { /*if(IS_MUTEX_VALID(CL_LOCK)) DESTROYMUTEX(CL_LOCK);*/ };
 
-	inline std::string getName() { return name; };
+	inline std::string getName() { return this->name; };
 	inline bool getIsBlocking() { return bIsBlocking; };
 	inline EOCLAccessTypes getAccessType() { return accessType; };
 
@@ -184,7 +184,7 @@ public:
 	{
 		if (size != 0)
 		{
-			value = (T*)malloc(size * sizeof(T));
+			this->value = (T*)malloc(size * sizeof(T));
 			currentSize = size;
 		}
 		else
@@ -196,22 +196,22 @@ public:
 
 		for (int i = 0; i < size; i++)
 		{
-			value[i] = val[i];
+			this->value[i] = val[i];
 		}
 	}
 
 	virtual ~OCLDynamicTypedBuffer() override
 	{
-		if(currentSize > 0)
-			delete[] value;
+		if(this->currentSize > 0)
+			delete[] this->value;
 	}
 
 	OCLDynamicTypedBuffer(const OCLDynamicTypedBuffer<T, TScope>& var) : OCLVariable(var.name, var.bIsBlocking, var.accessType)
 	{
 		if (var.currentSize != 0)
 		{
-			value = (T*)malloc(var.currentSize * sizeof(T));
-			currentSize = var.currentSize;
+			this->value = (T*)malloc(var.currentSize * sizeof(T));
+			this->currentSize = var.currentSize;
 		}
 		else
 		{
@@ -222,7 +222,7 @@ public:
 
 		for (int i = 0; i < var.currentSize; i++)
 		{
-			value[i] = var.value[i];
+			this->value[i] = var.value[i];
 		}
 	}
 
@@ -231,17 +231,17 @@ public:
 		return OCLDynamicTypedBuffer<T, TScope>(var);
 	}
 
-	virtual void* getValue() override { return value; };
-	virtual void  setValue(void* val) override { for (int i = 0; i < currentSize; i++) value[i] = *(((T*)val) + i); bisUploaded = false; };
+	virtual void* getValue() override { return this->value; };
+	virtual void  setValue(void* val) override { for (int i = 0; i < currentSize; i++) this->value[i] = *(((T*)val) + i); bisUploaded = false; };
 	virtual size_t getTypeSize() override { return sizeof(T); };
 	virtual size_t getSize() override 
 	{ 
 		return currentSize * sizeof(T); 
 	};
-	T* getTypedValue() { return ((T*)(value)); };
+	T* getTypedValue() { return ((T*)(this->value)); };
 	virtual EOCLBufferType getBufferType() override { return EOCLBufferType::BTNative; };
 	operator OCLVariable*() const { return (OCLVariable*)this; };
-	virtual T& operator[](size_t i) { return value[i]; };
+	virtual T& operator[](size_t i) { return this->value[i]; };
 	
 	using _Mybase = std::vector<T>;
 	using iterator = typename _Mybase::iterator;
@@ -259,40 +259,40 @@ public:
 	*/
 	size_t getBufferLength()
 	{
-		return currentSize;
+		return this->currentSize;
 	}
 
 	virtual void resizeBuffer(size_t size)
 	{
-		if (currentSize != size)
+		if (this->currentSize != size)
 		{
-			delete memoryBuffer;
-			memoryBuffer = NULL;
+			delete this->memoryBuffer;
+			this->memoryBuffer = NULL;
 		}
 		else
 		{
 			return;
 		}
 
-		currentSize = size;
-		if(value != NULL)
-			delete value;
-		value = (T*)malloc(currentSize * sizeof(T));
-		bisUploaded = false;
+		this->currentSize = size;
+		if(this->value != NULL)
+			delete this->value;
+		this->value = (T*)malloc(this->currentSize * sizeof(T));
+		this->bisUploaded = false;
 	}
 
 	virtual cl::Memory* getCLMemoryObject(cl::Context* context) override
 	{
 		if (context == NULL)
-			return memoryBuffer;
+			return this->memoryBuffer;
 
 		if (currentSize == 1 && TScope == ASPrivate)
 			return NULL;
 
-		if (memoryBuffer == NULL)
-			memoryBuffer = new cl::Buffer(*context, getAccessType(), getSize());
+		if (this->memoryBuffer == NULL)
+			this->memoryBuffer = new cl::Buffer(*context, getAccessType(), getSize());
 
-		return memoryBuffer;
+		return this->memoryBuffer;
 	};
 };
 
@@ -312,7 +312,7 @@ public:
 		}
 
 		for(int i = 0; i < size; i++)
-			value[i] = val[i];
+			this->value[i] = val[i];
 	}
 
 	OCLTypedVariable(T val, std::string name = "", bool bIsBlocking = true, EOCLAccessTypes accessType = EOCLAccessTypes::ATReadWrite) : OCLVariable(name, bIsBlocking, accessType)
@@ -320,7 +320,7 @@ public:
 		if(size != 1)
 			throw OCLException("Size must be 1 in order to use this constructor!");
 
-		value[0] = val;
+		this->value[0] = val;
 	}
 
 	OCLTypedVariable(const OCLTypedVariable<T, TScope, size>& var) : OCLVariable(var.name, var.bIsBlocking, var.accessType)
@@ -331,7 +331,7 @@ public:
 		}
 
 		for (int i = 0; i < size; i++)
-			value[i] = var.value[i];
+			this->value[i] = var.value[i];
 	}
 
 	OCLTypedVariable<T, TScope, size>& operator =(const OCLTypedVariable<T, TScope>& var)
@@ -341,13 +341,13 @@ public:
 
 	virtual ~OCLTypedVariable() override
 	{
-		if (memoryBuffer != NULL)
+		if (this->memoryBuffer != NULL)
 		{
-			delete memoryBuffer;
+			delete this->memoryBuffer;
 		}
 	}
 
-	void ForceCLBuffer() { bForceCLBuffer = true; };
+	void ForceCLBuffer() { this->bForceCLBuffer = true; };
 
 	T value[size];
 	virtual void* getValue() override { return &value[0]; };
@@ -362,15 +362,15 @@ public:
 	virtual cl::Memory* getCLMemoryObject(cl::Context* context) override 
 	{
 		if (context == NULL)
-			return memoryBuffer;
+			return this->memoryBuffer;
 
 		if (TScope == EOCLArgumentScope::ASPrivate)
 			return NULL;
 
-		if(memoryBuffer == NULL)
-		   memoryBuffer = new cl::Buffer(*context, getAccessType(), getSize());
+		if(this->memoryBuffer == NULL)
+		   this->memoryBuffer = new cl::Buffer(*context, getAccessType(), getSize());
 
-		return memoryBuffer;
+		return this->memoryBuffer;
 	};
 };
 
@@ -395,7 +395,7 @@ public:
 			return;
 
 		for (int i = 0; i < DataSize; i++)
-			value[i] = val[i];
+			this->value[i] = val[i];
 	}
 
 	virtual ~OCLTypedRingBuffer() override
