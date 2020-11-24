@@ -1,10 +1,13 @@
 #pragma once
 
-#include "unistd.h"
 #include <string>
 
 #ifdef __linux__
 #include <pthread.h>
+#include <unistd.h>
+#ifndef F_OK
+#define F_OK 0
+#endif
 #define MUTEXTYPE pthread_mutex_t
 #define CREATEMUTEX(mux) pthread_mutex_init(&mux, NULL)
 #define DESTROYMUTEX(mux) pthread_mutex_destroy(&mux)
@@ -15,6 +18,7 @@
 #define PACKED( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif
 #ifdef WIN32
+#include "unistd.h"
 #include <Windows.h>
 #include <fstream>
 #define MUTEXTYPE HANDLE
